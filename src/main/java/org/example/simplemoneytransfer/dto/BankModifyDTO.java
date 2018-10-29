@@ -4,7 +4,7 @@ import lombok.Data;
 import lombok.NonNull;
 
 @Data
-public class BankInsertDTO {
+public class BankModifyDTO {
 
 	private @NonNull String code;
     private @NonNull String bankName;

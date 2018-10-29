@@ -5,8 +5,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import lombok.Data;
 import lombok.NonNull;
 
@@ -15,11 +13,28 @@ import lombok.NonNull;
 public class Bank {
 	@Id
 	@GeneratedValue
-	@Column(name="BANK_ID", insertable=true, updatable=false)
-	@JsonIgnore
+	@Column(name="BANK_ID")
     private Long id;
 	@Column(unique=true)
 	private @NonNull String code;
     private @NonNull String bankName;
     private @NonNull String description;
+    
+	public Bank(Long id, String code, String bankName, String description)
+	{
+		if (id == null) {
+			throw new NullPointerException("id");
+		} else if (code == null) {
+			throw new NullPointerException("code");
+		} else if (bankName == null) {
+			throw new NullPointerException("bankName");
+		} else if (description == null) {
+			throw new NullPointerException("description");
+		} else {
+			this.id = id;
+			this.code = code;
+			this.bankName = bankName;
+			this.description = description;
+		}
+	}
 }

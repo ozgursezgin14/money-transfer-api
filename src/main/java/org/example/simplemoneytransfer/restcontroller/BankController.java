@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.example.simplemoneytransfer.dto.BankDTO;
-import org.example.simplemoneytransfer.dto.BankInsertDTO;
+import org.example.simplemoneytransfer.dto.BankModifyDTO;
 import org.example.simplemoneytransfer.entity.Bank;
 import org.example.simplemoneytransfer.service.BankService;
 import org.modelmapper.ModelMapper;
@@ -40,14 +40,14 @@ public class BankController {
     }
 
     @PostMapping(path="/banks")
-    public BankDTO addBank(@RequestBody BankInsertDTO newBank)
+    public BankDTO addBank(@RequestBody BankModifyDTO newBank)
     {
         return modelMapper.map(bankService.addBank(modelMapper.map(newBank, Bank.class)), 
         		               BankDTO.class);
     }
 
     @PutMapping(path="/banks/{id}")
-    public BankDTO updateBank(@RequestBody BankInsertDTO updatedBank, @PathVariable Long id)
+    public BankDTO updateBank(@RequestBody BankModifyDTO updatedBank, @PathVariable Long id)
     {
         return modelMapper.map(bankService.updateBank(modelMapper.map(updatedBank, Bank.class), id), 
 	               BankDTO.class);
