@@ -1,20 +1,20 @@
 package org.example.simplemoneytransfer.advice;
 
+import org.example.simplemoneytransfer.dto.ErrorDataDTO;
 import org.example.simplemoneytransfer.exception.CustomerNotFoundException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ControllerAdvice
 public class CustomerNotFoundAdvice {
     
 	@ResponseBody
 	@ExceptionHandler(CustomerNotFoundException.class)
-	@ResponseStatus(HttpStatus.NOT_FOUND)
-	String customerNotFoundHandler(CustomerNotFoundException ex)
+	ResponseEntity<ErrorDataDTO> customerNotFoundHandler(CustomerNotFoundException ex)
 	{
-		return ex.getMessage();
+		return new ResponseEntity<>(new ErrorDataDTO(404, ex.getMessage()), HttpStatus.NOT_FOUND);
 	}
 }

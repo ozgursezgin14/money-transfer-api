@@ -3,6 +3,7 @@ package org.example.simplemoneytransfer.entity;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 import lombok.Data;
@@ -12,7 +13,7 @@ import lombok.NonNull;
 @Entity
 public class Bank {
 	@Id
-	@GeneratedValue
+	@GeneratedValue(strategy=GenerationType.AUTO)
 	@Column(name="BANK_ID")
     private Long id;
 	@Column(unique=true)

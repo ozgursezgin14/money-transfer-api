@@ -13,6 +13,8 @@ import org.example.simplemoneytransfer.service.BankService;
 import org.example.simplemoneytransfer.service.CustomerService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,60 +34,61 @@ public class CustomerController {
     private ModelMapper modelMapper;
     
     @GetMapping(path="/banks/{bankId}/customers")
-    public List<CustomerDTO> getAllCustomers(@PathVariable Long bankId)
+    public ResponseEntity<List<CustomerDTO>> getAllCustomers(@PathVariable Long bankId)
     {
        	if (bankService.getBankById(bankId) == null)
        		throw new BankNotFoundException(bankId);
        	
-    	return customerService.getAllCustomers(bankId).stream()
+    	return new ResponseEntity<>(customerService.getAllCustomers(bankId).stream()
         		                         .map(b -> modelMapper.map(b, CustomerDTO.class))
-        		                         .collect(Collectors.toList());
+        		                         .collect(Collectors.toList()), HttpStatus.OK);
     }
     
     @GetMapping(path="banks/{bankId}/customers/{id}")
-    public CustomerDTO getCustomerById(@PathVariable Long id, @PathVariable Long bankId)
+    public ResponseEntity<CustomerDTO> getCustomerById(@PathVariable Long id, @PathVariable Long bankId)
     {   
     	Customer customer = customerService.getCustomerById(id);
     	if (bankService.getBankById(bankId) == null)
     		throw new BankNotFoundException(bankId);
-    	else if (customer.getBanksCustomer().getId() != bankId)
+    	else if (!customer.getBanksCustomer().getId().equals(bankId))
     		throw new CustomerBankNotMatchException(id, bankId);
     		
-    	 return modelMapper.map(customer, CustomerDTO.class);
+    	 return new ResponseEntity<>(modelMapper.map(customer, CustomerDTO.class), HttpStatus.OK);
     }
 
     @PostMapping(path="/banks/{bankId}/customers")
-    public CustomerDTO addCustomer(@RequestBody CustomerModifyDTO newCustomer, @PathVariable Long bankId)
+    public ResponseEntity<CustomerDTO> addCustomer(@RequestBody CustomerModifyDTO newCustomer, @PathVariable Long bankId)
     {
     	Bank bank = bankService.getBankById(bankId);
        	if (bank == null)
        		throw new BankNotFoundException(bankId);
        	
     	newCustomer.setBanksCustomer(bank);
-    	return modelMapper.map(customerService.addCustomer(modelMapper.map(newCustomer, Customer.class)), 
-        		               CustomerDTO.class);
+    	return new ResponseEntity<>(modelMapper.map(customerService.addCustomer(modelMapper.map(newCustomer, Customer.class)), 
+        		               CustomerDTO.class), HttpStatus.CREATED);
     }
 
     @PutMapping(path="/banks/{bankId}/customers/{id}")
-    public CustomerDTO updateCustomer(@RequestBody CustomerModifyDTO updatedCustomer, @PathVariable Long id, @PathVariable Long bankId)
+    public ResponseEntity<CustomerDTO> updateCustomer(@RequestBody CustomerModifyDTO updatedCustomer, @PathVariable Long id, @PathVariable Long bankId)
     { 
     	Bank bank = bankService.getBankById(bankId);
        	if (bank == null)
        		throw new BankNotFoundException(bankId);	
        	
        	updatedCustomer.setBanksCustomer(bank);
-        return modelMapper.map(customerService.updateCustomer(modelMapper.map(updatedCustomer, Customer.class), id), 
-	               CustomerDTO.class);
+        return new ResponseEntity<>(modelMapper.map(customerService.updateCustomer(modelMapper.map(updatedCustomer, Customer.class), id), 
+	               CustomerDTO.class), HttpStatus.OK);
     }
 
     @DeleteMapping(path="/banks/{bankId}/customers/{id}")
-    public void deleteCustomer(@PathVariable Long id, @PathVariable Long bankId)
+    public ResponseEntity<Void> deleteCustomer(@PathVariable Long id, @PathVariable Long bankId)
     {
        	if (bankService.getBankById(bankId) == null)
        		throw new BankNotFoundException(bankId);
-       	else if (customerService.getCustomerById(id).getBanksCustomer().getId() != bankId)
+       	else if (!customerService.getCustomerById(id).getBanksCustomer().getId().equals(bankId))
        		throw new CustomerBankNotMatchException(id, bankId);
        	
         customerService.deleteCustomer(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
