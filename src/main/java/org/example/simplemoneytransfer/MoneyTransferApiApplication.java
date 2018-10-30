@@ -10,6 +10,7 @@ public class MoneyTransferApiApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(MoneyTransferApiApplication.class, args);
+		
 	}
 	
 	

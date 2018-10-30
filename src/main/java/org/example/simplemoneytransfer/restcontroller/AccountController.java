@@ -4,12 +4,17 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.validation.Valid;
+
 import org.example.simplemoneytransfer.dto.AccountDTO;
 import org.example.simplemoneytransfer.dto.AccountModifyDTO;
+import org.example.simplemoneytransfer.dto.TransactionDTO;
+import org.example.simplemoneytransfer.dto.TransactionModifyDTO;
 import org.example.simplemoneytransfer.entity.Account;
 import org.example.simplemoneytransfer.entity.Customer;
 import org.example.simplemoneytransfer.exception.AccountCustomerNotMatchException;
 import org.example.simplemoneytransfer.exception.BankNotFoundException;
+import org.example.simplemoneytransfer.exception.CustomException;
 import org.example.simplemoneytransfer.exception.CustomerBankNotMatchException;
 import org.example.simplemoneytransfer.exception.CustomerNotFoundException;
 import org.example.simplemoneytransfer.service.AccountService;
@@ -46,6 +51,8 @@ public class AccountController {
        		throw new BankNotFoundException(bankId);
        	else if (customerService.getCustomerById(customerId)== null)
        		throw new CustomerNotFoundException(customerId);
+       	else if (!customerService.getCustomerById(customerId).getBanksCustomer().getId().equals(bankId))
+       		throw new CustomerBankNotMatchException(customerId, bankId);
        	
     	return new ResponseEntity<>(accountService.getAllAccounts(customerId).stream()
         		                         .map(b -> modelMapper.map(b, AccountDTO.class))
@@ -84,7 +91,7 @@ public class AccountController {
     }
     
     @PostMapping(path="/banks/{bankId}/customers/{customerId}/accounts")
-    public ResponseEntity<AccountDTO> addAccount(@RequestBody AccountModifyDTO newAccount, @PathVariable Long bankId, @PathVariable Long customerId)
+    public ResponseEntity<AccountDTO> addAccount(@Valid @RequestBody AccountModifyDTO newAccount, @PathVariable Long bankId, @PathVariable Long customerId)
     {
     	Customer customer = customerService.getCustomerById(customerId);
        	if (bankService.getBankById(bankId) == null)
@@ -100,8 +107,38 @@ public class AccountController {
 	               AccountDTO.class), HttpStatus.CREATED);
     }
 
+	/**
+	 * Transfer fund between two accounts.
+	 * @param transaction
+	 * @return list of updated accounts as List<AccountDTO>  
+	 * @throws CustomException
+	 */
+    @PostMapping(path="/banks/{bankId}/customers/{customerId}/accounts/{id}/transaction")
+	public ResponseEntity<List<AccountDTO>> transferFund(@Valid @RequestBody TransactionModifyDTO transactionModify,
+			@PathVariable Long id, @PathVariable Long bankId, @PathVariable Long customerId) 
+    {
+    	Account acc = accountService.getAccountById(id);
+     	if (bankService.getBankById(bankId) == null)
+       		throw new BankNotFoundException(bankId);
+       	else if (customerService.getCustomerById(customerId) == null)
+       		throw new CustomerNotFoundException(customerId);
+       	else if (!customerService.getCustomerById(customerId).getBanksCustomer().getId().equals(bankId))
+       		throw new CustomerBankNotMatchException(customerId, bankId);
+    	else if (!acc.getCustomersAccount().getId().equals(customerId))
+    		throw new AccountCustomerNotMatchException(id, customerId);
+    	else if (transactionModify.getToAccountId().equals(id))
+    		throw new CustomException("Can not transfer fund exact same account", HttpStatus.BAD_REQUEST);
+     	
+     	// Custom map take FromId form URI for only this account operations
+        TransactionDTO transaction = new TransactionDTO(acc.getCurrencyCode(), transactionModify.getAmount(), id, transactionModify.getToAccountId());
+        
+      	return new ResponseEntity<>(accountService.transferAccountsBalance(transaction).stream()
+                .map(b -> modelMapper.map(b, AccountDTO.class))
+                .collect(Collectors.toList()), HttpStatus.OK);
+	}
+    
     @PutMapping(path="/banks/{bankId}/customers/{customerId}/accounts/{id}")
-    public ResponseEntity<AccountDTO> updateAccount(@RequestBody AccountModifyDTO updatedAccount, @PathVariable Long id, @PathVariable Long bankId, @PathVariable Long customerId)
+    public ResponseEntity<AccountDTO> updateAccount(@Valid @RequestBody AccountModifyDTO updatedAccount, @PathVariable Long id, @PathVariable Long bankId, @PathVariable Long customerId)
     { 
     	Customer customer = customerService.getCustomerById(customerId);
        	if (bankService.getBankById(bankId) == null)
@@ -110,9 +147,11 @@ public class AccountController {
        		throw new CustomerNotFoundException(customerId);
        	else if (!customerService.getCustomerById(customerId).getBanksCustomer().getId().equals(bankId))
        		throw new CustomerBankNotMatchException(customerId, bankId);
-       	
+
        	updatedAccount.setCustomersAccount(customer);
-        return new ResponseEntity<>(modelMapper.map(accountService.updateAccount(modelMapper.map(updatedAccount, Account.class), id), 
+       	
+        return new ResponseEntity<>(modelMapper.map(accountService
+        		.updateAccount(modelMapper.map(updatedAccount, Account.class), id), 
 	               AccountDTO.class), HttpStatus.OK);
     }
 

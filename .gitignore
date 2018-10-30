@@ -10,6 +10,8 @@
 .springBeans
 .sts4-cache
 .settings
+*hs_err*
+.resourceCache
 
 ### IntelliJ IDEA ###
 .idea

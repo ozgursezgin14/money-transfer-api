@@ -15,6 +15,7 @@ import org.springframework.stereotype.Repository;
 public interface IAccountRepository extends CrudRepository<Account, Long>{
 	
 	Iterable<Account> findByCustomersAccountId(Long bankId);
+	Optional<Account> findByAccountNumber(String number);
 	
 	@Lock(LockModeType.PESSIMISTIC_WRITE)
 	@Query("SELECT a FROM Account a WHERE a.id = :id")

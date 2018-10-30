@@ -3,6 +3,8 @@ package org.example.simplemoneytransfer.restcontroller;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.validation.Valid;
+
 import org.example.simplemoneytransfer.dto.CustomerDTO;
 import org.example.simplemoneytransfer.dto.CustomerModifyDTO;
 import org.example.simplemoneytransfer.entity.Bank;
@@ -57,7 +59,7 @@ public class CustomerController {
     }
 
     @PostMapping(path="/banks/{bankId}/customers")
-    public ResponseEntity<CustomerDTO> addCustomer(@RequestBody CustomerModifyDTO newCustomer, @PathVariable Long bankId)
+    public ResponseEntity<CustomerDTO> addCustomer(@Valid @RequestBody CustomerModifyDTO newCustomer, @PathVariable Long bankId)
     {
     	Bank bank = bankService.getBankById(bankId);
        	if (bank == null)
@@ -69,7 +71,7 @@ public class CustomerController {
     }
 
     @PutMapping(path="/banks/{bankId}/customers/{id}")
-    public ResponseEntity<CustomerDTO> updateCustomer(@RequestBody CustomerModifyDTO updatedCustomer, @PathVariable Long id, @PathVariable Long bankId)
+    public ResponseEntity<CustomerDTO> updateCustomer(@Valid @RequestBody CustomerModifyDTO updatedCustomer, @PathVariable Long id, @PathVariable Long bankId)
     { 
     	Bank bank = bankService.getBankById(bankId);
        	if (bank == null)

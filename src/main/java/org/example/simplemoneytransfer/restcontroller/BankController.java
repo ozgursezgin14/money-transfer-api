@@ -3,6 +3,8 @@ package org.example.simplemoneytransfer.restcontroller;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.validation.Valid;
+
 import org.example.simplemoneytransfer.dto.BankDTO;
 import org.example.simplemoneytransfer.dto.BankModifyDTO;
 import org.example.simplemoneytransfer.entity.Bank;
@@ -46,14 +48,14 @@ public class BankController {
     }
 
     @PostMapping(path="/banks")
-    public ResponseEntity<BankDTO> addBank(@RequestBody BankModifyDTO newBank)
+    public ResponseEntity<BankDTO> addBank(@Valid @RequestBody BankModifyDTO newBank)
     {
         return new ResponseEntity<>(modelMapper.map(bankService.addBank(modelMapper.map(newBank, Bank.class)), 
         		               BankDTO.class), HttpStatus.CREATED);
     }
 
     @PutMapping(path="/banks/{id}")
-    public ResponseEntity<BankDTO> updateBank(@RequestBody BankModifyDTO updatedBank, @PathVariable Long id)
+    public ResponseEntity<BankDTO> updateBank(@Valid @RequestBody BankModifyDTO updatedBank, @PathVariable Long id)
     {
     	if (bankService.getBankById(id) == null)
        		throw new BankNotFoundException(id);

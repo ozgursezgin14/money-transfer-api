@@ -1,6 +1,6 @@
 # Money transfer Rest API with Spring Boot
 
-A Spring Boot RESTful API for money transfers between users accounts
+A Spring Boot RESTful API for money transfers with Currency Conversion
 
 ### Technologies
 - Spring Boot
@@ -26,9 +26,13 @@ Spring Boot starts a embeded Tomcat server on localhost port 8080 An H2 in memor
 - http://localhost:8080/banks
 - http://localhost:8080/banks/1
 - http://localhost:8080/banks/1/customers
-- http://localhost:8080/banks/1/customers/1
-- http://localhost:8080/banks/1/customers/1/accounts
-- http://localhost:8080/banks/1/customers/1/accounts/1
+- http://localhost:8080/banks/1/customers/5
+- http://localhost:8080/banks/1/customers/5/accounts
+- http://localhost:8080/banks/1/customers/5/accounts/12
+- http://localhost:8080/banks/1/customers/5/accounts/12/balance
+- http://localhost:8080/banks/1/customers/5/accounts/12/withdraw/1000
+- http://localhost:8080/banks/1/customers/5/accounts/12/deposit/1000
+- http://localhost:8080/banks/1/customers/5/accounts/12/transaction
 
 ### Available Services
 
@@ -52,7 +56,7 @@ Spring Boot starts a embeded Tomcat server on localhost port 8080 An H2 in memor
 | GET | /banks/{bankId}/customers/{customerId}/account/{id}/balance | get account balance | 
 | PUT | /banks/{bankId}/customers/{customerId}/accounts/{id}/withdraw/{amount} | withdraw money from account | 
 | PUT | /banks/{bankId}/customers/{customerId}/accounts/{id}/deposit/{amount} | deposit money to account | 
-| POST | /banks/{bankId}/customers/{customerId}/accounts/transaction | perform transaction between 2 customer accounts | 
+| POST | /banks/{bankId}/customers/{customerId}/accounts/{id}/transaction | perform transaction between 2 customer accounts | 
 
 ### Http Status
 - 200 OK: The request has succeeded
@@ -105,7 +109,7 @@ Spring Boot starts a embeded Tomcat server on localhost port 8080 An H2 in memor
         "email": "joe@gmail.com",
         "customerName": "Joe Doe",
         "description": "Joe Doe description",
-        "banksCustomer": {   <---- Shows this account's bank(whic customer belongs)(grand-parent)
+        "banksCustomer": {   <---- Shows this account's bank(which customer belongs)(grand-parent)
             "id": 1,
             "code": "ING",
             "bankName": "ING Bank",
@@ -140,20 +144,17 @@ Spring Boot starts a embeded Tomcat server on localhost port 8080 An H2 in memor
 
 ```sh
 {   
-	"accountNumber": "ACN10000",
-    "balance": "1000.00",
+	"accountNumber": "ACN10001",
     "currencyCode": "USD",
-    "description": "Account ACN1000 description"
+    "description": "Account ACN10001 description"
 }
 ```
 
 #### Account Transaction:
 ```sh
 {  
-   "currencyCode":"EUR",
-   "amount":100000.0000,
-   "fromAccountId":1,
-   "toAccountId":2
+   "amount": 100000.00,
+   "toAccountId": 2
 }
 ```
 
