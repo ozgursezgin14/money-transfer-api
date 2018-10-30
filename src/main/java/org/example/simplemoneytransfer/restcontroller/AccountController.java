@@ -1,5 +1,6 @@
 package org.example.simplemoneytransfer.restcontroller;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -67,6 +68,21 @@ public class AccountController {
     	 return new ResponseEntity<>(modelMapper.map(account, AccountDTO.class), HttpStatus.OK);
     }
 
+    @GetMapping(path="/banks/{bankId}/customers/{customerId}/accounts/{id}/balance")
+    public ResponseEntity<BigDecimal> getDepositById(@PathVariable Long id, @PathVariable Long bankId, @PathVariable Long customerId)
+    {   
+       	if (bankService.getBankById(bankId) == null)
+       		throw new BankNotFoundException(bankId);
+       	else if (customerService.getCustomerById(customerId) == null)
+       		throw new CustomerNotFoundException(customerId);
+       	else if (!customerService.getCustomerById(customerId).getBanksCustomer().getId().equals(bankId))
+       		throw new CustomerBankNotMatchException(customerId, bankId);
+    	else if (!accountService.getAccountById(id).getCustomersAccount().getId().equals(customerId))
+    		throw new AccountCustomerNotMatchException(id, customerId);
+    		
+    	 return new ResponseEntity<>(accountService.getBalanceById(id), HttpStatus.OK);
+    }
+    
     @PostMapping(path="/banks/{bankId}/customers/{customerId}/accounts")
     public ResponseEntity<AccountDTO> addAccount(@RequestBody AccountModifyDTO newAccount, @PathVariable Long bankId, @PathVariable Long customerId)
     {
@@ -79,9 +95,9 @@ public class AccountController {
        		throw new CustomerBankNotMatchException(customerId, bankId);
 
        	
-    	newAccount.setCustomersAccount(customer);
+    	newAccount.setCustomersAccount(customer);    	
     	return new ResponseEntity<>(modelMapper.map(accountService.addAccount(modelMapper.map(newAccount, Account.class)), 
-        		               AccountDTO.class), HttpStatus.CREATED);
+	               AccountDTO.class), HttpStatus.CREATED);
     }
 
     @PutMapping(path="/banks/{bankId}/customers/{customerId}/accounts/{id}")
@@ -100,6 +116,40 @@ public class AccountController {
 	               AccountDTO.class), HttpStatus.OK);
     }
 
+    @PutMapping(path="/banks/{bankId}/customers/{customerId}/accounts/{id}/deposit/{amount}")
+    public ResponseEntity<AccountDTO> deposit(@PathVariable BigDecimal amount, @PathVariable Long id, @PathVariable Long bankId, @PathVariable Long customerId)
+    { 
+       	if (bankService.getBankById(bankId) == null)
+       		throw new BankNotFoundException(bankId);
+       	else if (customerService.getCustomerById(customerId) == null)
+       		throw new CustomerNotFoundException(customerId);
+       	else if (!customerService.getCustomerById(customerId).getBanksCustomer().getId().equals(bankId))
+       		throw new CustomerBankNotMatchException(customerId, bankId);
+    	else if (!accountService.getAccountById(id).getCustomersAccount().getId().equals(customerId))
+    		throw new AccountCustomerNotMatchException(id, customerId);
+    
+       	
+        return new ResponseEntity<>(modelMapper.map(accountService.updateAccountBalance(id, amount, false), 
+	               AccountDTO.class), HttpStatus.OK);
+    }
+    
+    @PutMapping(path="/banks/{bankId}/customers/{customerId}/accounts/{id}/withdraw/{amount}")
+    public ResponseEntity<AccountDTO> withdraw(@PathVariable BigDecimal amount, @PathVariable Long id, @PathVariable Long bankId, @PathVariable Long customerId)
+    { 
+       	if (bankService.getBankById(bankId) == null)
+       		throw new BankNotFoundException(bankId);
+       	else if (customerService.getCustomerById(customerId) == null)
+       		throw new CustomerNotFoundException(customerId);
+       	else if (!customerService.getCustomerById(customerId).getBanksCustomer().getId().equals(bankId))
+       		throw new CustomerBankNotMatchException(customerId, bankId);
+    	else if (!accountService.getAccountById(id).getCustomersAccount().getId().equals(customerId))
+    		throw new AccountCustomerNotMatchException(id, customerId);
+
+       	
+        return new ResponseEntity<>(modelMapper.map(accountService.updateAccountBalance(id, amount, true), 
+	               AccountDTO.class), HttpStatus.OK);
+    }
+    
     @DeleteMapping(path="/banks/{bankId}/customers/{customerId}/accounts/{id}")
     public ResponseEntity<Void> deleteAccount(@PathVariable Long id, @PathVariable Long bankId, @PathVariable Long customerId)
     {

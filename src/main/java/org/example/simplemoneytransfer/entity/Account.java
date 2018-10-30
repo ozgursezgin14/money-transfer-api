@@ -15,16 +15,17 @@ import lombok.NonNull;
 @Data
 @Entity
 public class Account {
+
 	@Id
-	@GeneratedValue(strategy=GenerationType.AUTO)
-	@Column(name="ACCOUNT_ID")
-    private Long id;
-	@Column(unique=true)
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@Column(name="ACCOUNT_ID", updatable=false, nullable=false)
+    private @NonNull Long id;
+	@Column(name="ACCOUNT_NUMBER", nullable=false, unique=true)
 	private @NonNull String accountNumber;
 	private @NonNull BigDecimal balance;
     private @NonNull String currencyCode;
     private @NonNull String description;
-    
+
 	@ManyToOne
 	private @NonNull Customer customersAccount;
 	

@@ -56,8 +56,12 @@ Spring Boot starts a embeded Tomcat server on localhost port 8080 An H2 in memor
 
 ### Http Status
 - 200 OK: The request has succeeded
-- 400 Bad Request: The request could not be understood by the server 
+- 201 Created: The request has been fullfilled and resulted in a new resourse being created
+- 204 No Content: The request has been fullfilled successfully but does not need to return an entity body
+- 400 Bad Request: The request could not be understood by the server due to malformed syntax
 - 404 Not Found: The requested resource cannot be found
+- 405 Method Not allowed: The method specified in the request in not allowed for the resourse identified by the request URI
+- 409 Conflict: The request could not be completed due to a conflict with the current state of resourse
 - 500 Internal Server Error: The server encountered an unexpected condition 
 
 ### Sample JSON for Response Body  for GET methods contains Bank, Customer and Account
@@ -78,7 +82,7 @@ Spring Boot starts a embeded Tomcat server on localhost port 8080 An H2 in memor
     "email": "joe@gmail.com",
     "customerName": "Joe Doe",
     "description": "Joe Doe description",
-    "banksCustomer": {
+    "banksCustomer": {   <----- Shows this  customer's bank(parent)
         "id": 1,
         "code": "ING",
         "bankName": "ING Bank",
@@ -96,12 +100,12 @@ Spring Boot starts a embeded Tomcat server on localhost port 8080 An H2 in memor
     "balance": 1000,
     "currencyCode": "USD",
     "description": "Account ACN1000 description",
-    "customersAccount": {
+    "customersAccount": {   <---- Shows this account's customer(parent)
         "id": 2,
         "email": "joe@gmail.com",
         "customerName": "Joe Doe",
         "description": "Joe Doe description",
-        "banksCustomer": {
+        "banksCustomer": {   <---- Shows this account's bank(whic customer belongs)(grand-parent)
             "id": 1,
             "code": "ING",
             "bankName": "ING Bank",

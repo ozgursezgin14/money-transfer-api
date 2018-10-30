@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ICustomerRepository extends CrudRepository<Customer, Long>{
 	
-	public Iterable<Customer> findByBanksCustomerId(Long bankId);
+	Iterable<Customer> findByBanksCustomerId(Long bankId);
 }

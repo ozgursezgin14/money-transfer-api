@@ -13,10 +13,10 @@ import lombok.NonNull;
 @Entity
 public class Bank {
 	@Id
-	@GeneratedValue(strategy=GenerationType.AUTO)
-	@Column(name="BANK_ID")
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@Column(name="BANK_ID", updatable=false, nullable=false)
     private Long id;
-	@Column(unique=true)
+	@Column(nullable=false, unique=true)
 	private @NonNull String code;
     private @NonNull String bankName;
     private @NonNull String description;

@@ -14,10 +14,10 @@ import lombok.NonNull;
 @Entity
 public class Customer {
 	@Id
-	@GeneratedValue(strategy=GenerationType.AUTO)
-	@Column(name="CUSTOMER_ID")
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@Column(name="CUSTOMER_ID", updatable=false, nullable=false)
     private Long id;
-	@Column(unique=true)
+	@Column(nullable=false, unique=true)
 	private @NonNull String email;
     private @NonNull String customerName;
     private @NonNull String description;

@@ -12,6 +12,7 @@ public class MoneyTransferApiApplication {
 		SpringApplication.run(MoneyTransferApiApplication.class, args);
 	}
 	
+	
 	@Bean
 	public ModelMapper modelMapper() { return new ModelMapper(); }
 }
